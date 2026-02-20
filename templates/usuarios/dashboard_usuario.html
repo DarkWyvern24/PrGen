@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Usuario</title>
+</head>
+<body>
+    <h1>Bienvenido {{ request.user.username }}</h1>
+    <h2>Rol: Usuario</h2>
+    <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Cerrar sesión</button>
+</form>
+</body>
+</html>

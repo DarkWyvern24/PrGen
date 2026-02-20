@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Admin General</title>
+</head>
+<body>
+    <h1>Bienvenido {{ request.user.username }}</h1>
+    <h2>Rol: Admin General</h2>
+    <a href="{% url 'usuarios:lista_usuarios' %}">Gestionar Usuarios</a>
+    <br>
+    <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Cerrar sesión</button>
+</form>
+</body>
+</html>
