@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% block title %}Crear Orden de Trabajo{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4 text-primary fw-bold">Crear Orden de Trabajo</h2>
+
+<a href="{% url 'ordenes:lista_ot' %}" class="btn btn-outline-primary mb-4">
+    ← Volver a Órdenes
+</a>
+
+<div class="card shadow p-4 border-0">
+
+<form method="post">
+{% csrf_token %}
+
+<div class="row">
+
+    <!-- FECHAS -->
+    <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Fecha y Hora Solicitud</label>
+        {{ form.fechaHoraSolicitud }}
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Fecha Entrega Trabajo</label>
+        {{ form.fechaEntregaTrabajo }}
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Fecha Asignación</label>
+        {{ form.fechaAsignacion }}
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Fecha Entrega PT</label>
+        {{ form.fechaEntregaPT }}
+    </div>
+
+    <!-- DATOS GENERALES -->
+    <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Número Cotización</label>
+        {{ form.numeroCotizacion }}
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Referencia</label>
+        {{ form.referencia }}
+    </div>
+
+    <!-- DESCRIPCIÓN -->
+    <div class="col-12 mb-3">
+        <label class="form-label fw-semibold">Descripción del Trabajo</label>
+        {{ form.descripcionTrabajo }}
+        <small class="text-muted">
+            <span id="contadorDescripcion">0</span>/500 caracteres
+        </small>
+    </div>
+
+    <!-- ESQUEMA -->
+    <div class="col-12 mb-3">
+        <label class="form-label fw-semibold">Esquema Trabajo</label>
+        {{ form.esquemaTrabajo }}
+        <small class="text-muted">
+            <span id="contadorEsquema">0</span>/1000 caracteres
+        </small>
+    </div>
+
+    <!-- PORCENTAJE -->
+    <div class="col-md-4 mb-3">
+        <label class="form-label fw-semibold">Porcentaje Avance</label>
+        <div class="input-group">
+            {{ form.porcentajeAvance }}
+            <span class="input-group-text bg-primary text-white">%</span>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label class="form-label fw-semibold">Nivel Urgencia</label>
+        {{ form.nivelUrgencia }}
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label class="form-label fw-semibold">Estado</label>
+        {{ form.estadoOT }}
+    </div>
+
+</div>
+
+<hr class="my-4">
+
+<!-- ================= SOLICITANTE ================= -->
+
+<h5 class="text-primary fw-bold mb-3">Solicitante</h5>
+
+<div class="row align-items-center mb-3">
+    <div class="col-md-3">
+        <div class="form-check">
+            <input class="form-check-input radio-azul" type="radio" name="tipo_solicitante" value="existente" checked>
+            <label class="form-check-label fw-semibold">Existente</label>
+        </div>
+    </div>
+    <div class="col-md-9">
+        {{ form.solicitante }}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 mb-2">
+        <div class="form-check">
+            <input class="form-check-input radio-azul" type="radio" name="tipo_solicitante" value="nuevo">
+            <label class="form-check-label fw-semibold text-primary">
+                Crear Nuevo Solicitante
+            </label>
+        </div>
+    </div>
+
+    <div class="col-12 border p-3 rounded bg-light">
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_rut_solicitante" class="form-control" placeholder="RUT">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_nombre_solicitante" class="form-control" placeholder="Nombre">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="email" name="nuevo_mail_solicitante" class="form-control" placeholder="Email">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_telefono_solicitante" class="form-control" placeholder="Teléfono">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= CLIENTE ================= -->
+
+<h5 class="text-primary fw-bold mb-3">Cliente</h5>
+
+<div class="row align-items-center mb-3">
+    <div class="col-md-3">
+        <div class="form-check">
+            <input class="form-check-input radio-azul" type="radio" name="tipo_cliente" value="existente" checked>
+            <label class="form-check-label fw-semibold">Existente</label>
+        </div>
+    </div>
+    <div class="col-md-9">
+        {{ form.cliente }}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 mb-2">
+        <div class="form-check">
+            <input class="form-check-input radio-azul" type="radio" name="tipo_cliente" value="nuevo">
+            <label class="form-check-label fw-semibold text-primary">
+                Crear Nuevo Cliente
+            </label>
+        </div>
+    </div>
+
+    <div class="col-12 border p-3 rounded bg-light">
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_rut_cliente" class="form-control" placeholder="RUT">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_nombre_cliente" class="form-control" placeholder="Nombre">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="email" name="nuevo_mail_cliente" class="form-control" placeholder="Email">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_telefono_cliente" class="form-control" placeholder="Teléfono">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= RESPONSABLE ================= -->
+
+<h5 class="text-primary fw-bold mb-3">Responsable</h5>
+
+<div class="row align-items-center mb-3">
+    <div class="col-md-3">
+        <div class="form-check">
+            <input class="form-check-input radio-azul" type="radio" name="tipo_responsable" value="existente" checked>
+            <label class="form-check-label fw-semibold">Existente</label>
+        </div>
+    </div>
+    <div class="col-md-9">
+        {{ form.responsable }}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 mb-2">
+        <div class="form-check">
+            <input class="form-check-input radio-azul" type="radio" name="tipo_responsable" value="nuevo">
+            <label class="form-check-label fw-semibold text-primary">
+                Crear Nuevo Responsable
+            </label>
+        </div>
+    </div>
+
+    <div class="col-12 border p-3 rounded bg-light">
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_rut_responsable" class="form-control" placeholder="RUT">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_nombre_responsable" class="form-control" placeholder="Nombre">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="email" name="nuevo_mail_responsable" class="form-control" placeholder="Email">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="text" name="nuevo_telefono_responsable" class="form-control" placeholder="Teléfono">
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="submit" class="btn btn-primary mt-3 px-4">
+    Crear Orden
+</button>
+
+</form>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
+
+<script>
+
+// Desactivar selects cuando se crea nuevo
+function toggleGrupo(nombreRadio, selectId) {
+    const radios = document.getElementsByName(nombreRadio);
+    const select = document.getElementById(selectId);
+
+    radios.forEach(radio => {
+        radio.addEventListener("change", function() {
+            if (this.value === "nuevo") {
+                select.disabled = true;
+                select.required = false;
+            } else {
+                select.disabled = false;
+            }
+        });
+    });
+}
+
+toggleGrupo("tipo_solicitante", "id_solicitante");
+toggleGrupo("tipo_cliente", "id_cliente");
+toggleGrupo("tipo_responsable", "id_responsable");
+
+// Contadores
+const descripcion = document.getElementById("id_descripcionTrabajo");
+const esquema = document.getElementById("id_esquemaTrabajo");
+
+if (descripcion) {
+    descripcion.addEventListener("input", function(){
+        document.getElementById("contadorDescripcion").textContent = this.value.length;
+    });
+}
+
+if (esquema) {
+    esquema.addEventListener("input", function(){
+        document.getElementById("contadorEsquema").textContent = this.value.length;
+    });
+}
+
+</script>
+
+{% endblock %}

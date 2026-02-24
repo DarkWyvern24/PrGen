@@ -1,16 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard Admin General</title>
-</head>
-<body>
-    <h1>Bienvenido {{ request.user.username }}</h1>
-    <h2>Rol: Admin General</h2>
-    <a href="{% url 'usuarios:lista_usuarios' %}">Gestionar Usuarios</a>
-    <br>
-    <form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Cerrar sesión</button>
-</form>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Admin General{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card shadow p-4">
+            <h2 class="mb-3">Bienvenido {{ request.user.username }}</h2>
+            <h5 class="text-muted mb-4">Rol: Admin General</h5>
+
+            <a href="{% url 'ordenes:lista_ot' %}" class="btn btn-dark w-100 mb-3">
+                Gestionar Órdenes de Trabajo
+            </a>
+
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-primary w-100 mb-3">
+                Gestionar Usuarios
+            </a>
+
+            <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-secondary w-100 mb-3">
+                Cambiar Contraseña
+            </a>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100">
+                    Cerrar Sesión
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

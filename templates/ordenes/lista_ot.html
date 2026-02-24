@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Órdenes de Trabajo{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">Órdenes de Trabajo</h2>
+
+{% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
+<a href="{% url 'ordenes:crear_ot' %}" class="btn btn-primary mb-3">
+    Crear Orden
+</a>
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Referencia</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Urgencia</th>
+            <th>Avance</th>
+            {% if request.user.rol != 'usuario' %}
+            <th>Acciones</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for ot in ordenes %}
+        <tr>
+            <td>{{ ot.idOT }}</td>
+            <td>{{ ot.referencia }}</td>
+            <td>{{ ot.cliente }}</td>
+            <td>{{ ot.estadoOT }}</td>
+            <td>{{ ot.nivelUrgencia }}</td>
+            <td>{{ ot.porcentajeAvance }}%</td>
+
+            {% if request.user.rol != 'usuario' %}
+            <td>
+                <a href="{% url 'ordenes:editar_ot' ot.idOT %}" class="btn btn-warning btn-sm">
+                    Editar
+                </a>
+
+                <form method="post"
+                      action="{% url 'ordenes:eliminar_ot' ot.idOT %}"
+                      style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit"
+                            onclick="return confirm('¿Seguro que deseas eliminar esta orden?')"
+                            class="btn btn-danger btn-sm">
+                        Eliminar
+                    </button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
