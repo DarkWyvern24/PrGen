@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Trabajador{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+<div class="col-md-6">
+
+<div class="card shadow p-4">
+
+<h2 class="mb-4">Crear Trabajador</h2>
+
+<form method="post">
+{% csrf_token %}
+
+<div class="mb-3">
+<label class="form-label">Nombre y Apellido</label>
+{{ form.nombre }}
+</div>
+
+<div class="mb-3">
+<label class="form-label">Cargo</label>
+{{ form.cargo }}
+</div>
+
+<div class="form-check mb-3">
+{{ form.activo }}
+<label class="form-check-label">Activo</label>
+</div>
+
+<button type="submit" class="btn btn-primary w-100">
+Guardar
+</button>
+
+</form>
+
+</div>
+</div>
+</div>
+
+{% endblock %}

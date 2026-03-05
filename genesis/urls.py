@@ -19,4 +19,8 @@ urlpatterns = [
     path('', usuarios_views.dashboard, name='home'),
 
     path('ordenes/', include('ordenes.urls')),
+
+    path("asignaciones/", include("asignaciones.urls")),
+
+    path("trabajadores/", include("trabajadores.urls")),
 ]

@@ -1,0 +1,84 @@
+{# genesis/templates/asignaciones/eliminar_asignacion.html #}
+{% extends "base.html" %}
+{% block title %}Eliminar Asignación{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow p-4">
+
+      <h2 class="mb-3 text-danger">Eliminar Asignación</h2>
+      <p class="mb-4">
+        Estás a punto de eliminar esta asignación. Esta acción <strong>no se puede deshacer</strong>.
+      </p>
+
+      <div class="alert alert-warning">
+        <div class="mb-1">
+          <strong>Orden de Trabajo:</strong>
+          {% if asignacion.orden_trabajo %}
+            OT {{ asignacion.orden_trabajo.idOT }} - {{ asignacion.orden_trabajo.descripcionTrabajo }}
+          {% else %}
+            <em>Sin OT asociada</em>
+          {% endif %}
+        </div>
+
+        <div class="mb-1">
+          <strong>Porcentaje de trabajo:</strong> {{ asignacion.porcentaje_trabajo }}%
+        </div>
+
+        <div class="mb-1">
+          <strong>Trabajo entregado:</strong>
+          {% if asignacion.entregado %} Sí {% else %} No {% endif %}
+        </div>
+
+        {% if asignacion.fecha_asignacion %}
+          <div class="mb-1">
+            <strong>Fecha asignación:</strong> {{ asignacion.fecha_asignacion }}
+          </div>
+        {% endif %}
+
+        {% if asignacion.fecha_entrega %}
+          <div class="mb-1">
+            <strong>Fecha entrega:</strong> {{ asignacion.fecha_entrega }}
+          </div>
+        {% endif %}
+
+        {% if asignacion.descripcion_trabajo %}
+          <div class="mt-2">
+            <strong>Descripción:</strong>
+            <div class="small text-muted">{{ asignacion.descripcion_trabajo }}</div>
+          </div>
+        {% endif %}
+
+        <div class="mt-3">
+          <strong>Trabajadores asignados:</strong>
+          {% if asignacion.trabajadores.all %}
+            <ul class="mb-0">
+              {% for t in asignacion.trabajadores.all %}
+                <li>{{ t }}</li>
+              {% empty %}
+                <li><em>Sin trabajadores asignados</em></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="small text-muted"><em>Sin trabajadores asignados</em></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <form method="post" class="d-flex gap-2">
+        {% csrf_token %}
+
+        <a href="{% url 'asignaciones:lista_asignaciones' %}" class="btn btn-secondary w-50">
+          Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-danger w-50">
+          Sí, eliminar
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -29,8 +29,19 @@ def dashboard(request):
     elif getattr(request.user, 'rol', None) == 'admin':
         return render(request, 'usuarios/dashboard_admin.html')
 
+    elif getattr(request.user, 'rol', None) == 'jefe_taller':
+        return render(request, 'usuarios/dashboard_jefe_taller.html')
+
     else:
         return render(request, 'usuarios/dashboard_usuario.html')
+
+
+#DASHBOARD JEFES DE TALLER@login_required
+def dashboard_jefe_taller(request):
+    if request.user.rol != 'jefe_taller':
+        return redirect('usuarios:dashboard_usuario')
+
+    return render(request, 'usuarios/dashboard_jefe_taller.html')
 
 
 # LISTAR USUARIOS
@@ -208,6 +219,8 @@ def cambiar_password(request):
                 return redirect('usuarios:dashboard_admin_general')
             elif request.user.rol == 'admin':
                 return redirect('usuarios:dashboard_admin')
+            elif request.user.rol == 'jefe_taller':
+                return redirect('usuarios:dashboard_jefe_taller')
             else:
                 return redirect('usuarios:dashboard_usuario')
 

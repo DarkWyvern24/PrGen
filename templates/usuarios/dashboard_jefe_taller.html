@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard Admin General{% endblock %}
+{% block title %}Dashboard Jefe de Taller{% endblock %}
 
 {% block content %}
 
 <div class="row justify-content-center">
-
     <div class="col-lg-7">
-
         <div class="card shadow p-4">
 
             <h2 class="mb-3">
@@ -16,38 +14,34 @@
             </h2>
 
             <h5 class="text-muted mb-4">
-                Rol: Administrador General
+                Rol: Jefe de Taller
             </h5>
 
-            <!-- ORDENES -->
+            <!-- OT (asumido: gestionar, si no corresponde me dices y lo ajusto) -->
             <a href="{% url 'ordenes:lista_ot' %}" class="btn btn-dark w-100 mb-3">
                 Gestionar Órdenes de Trabajo
             </a>
 
-            <!-- ASIGNACIONES -->
+            <!-- ASIGNACIONES (CRUD permitido para jefe_taller) -->
             <a href="{% url 'asignaciones:lista_asignaciones' %}" class="btn btn-primary w-100 mb-3">
                 Gestión de Asignaciones
             </a>
 
-            <!-- TRABAJADORES -->
-            <a href="{% url 'trabajadores:lista_trabajadores' %}" class="btn btn-primary w-100 mb-3">
-                Gestión de Trabajadores
-            </a>
-
-            <!-- USUARIOS -->
-            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-primary w-100 mb-3">
-                Gestionar Usuarios
-            </a>
-
             <!-- PASSWORD -->
-            <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-secondary w-100">
+            <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-secondary w-100 mb-3">
                 Cambiar Contraseña
             </a>
 
+            <!-- LOGOUT -->
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100">
+                    Cerrar Sesión
+                </button>
+            </form>
+
         </div>
-
     </div>
-
 </div>
 
 {% endblock %}
