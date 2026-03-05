@@ -6,9 +6,14 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Asignaciones</h2>
-    <a href="{% url 'asignaciones:asignar_ot' %}" class="btn btn-success">
-      Nueva Asignación
-    </a>
+    <div>
+      <a href="{% url 'home' %}" class="btn btn-secondary">
+                          ← Volver al Dashboard
+                      </a>
+      <a href="{% url 'asignaciones:asignar_ot' %}" class="btn btn-success">
+        Nueva Asignación
+      </a>
+    </div>
   </div>
 
   <div class="card shadow">

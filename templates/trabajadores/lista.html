@@ -11,9 +11,16 @@
 
 <h2 class="mb-4">Gestión de Trabajadores</h2>
 
-<a href="{% url 'trabajadores:crear_trabajador' %}" class="btn btn-primary mb-3">
-    Agregar Trabajador
-</a>
+<div>
+    <a href="{% url 'home' %}" class="btn btn-secondary">
+                        ← Volver al Dashboard
+                    </a>
+
+    <a href="{% url 'trabajadores:crear_trabajador' %}" class="btn btn-primary mb-3">
+        Agregar Trabajador
+    </a>
+</div>
+
 
 <table class="table table-hover">
 

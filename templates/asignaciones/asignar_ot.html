@@ -8,7 +8,9 @@
     <div class="card shadow p-4">
 
       <h2 class="mb-4">Asignación de Orden de Trabajo</h2>
-
+      <a href="{% url 'asignaciones:lista_asignaciones' %}" class="btn btn-secondary">
+                        ← Volver a la lista
+                    </a>
       {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
       {% endif %}

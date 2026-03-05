@@ -6,6 +6,9 @@
 
 <h2 class="mb-4">Órdenes de Trabajo</h2>
 
+<a href="{% url 'home' %}" class="btn btn-secondary">
+                        ← Volver al Dashboard
+                    </a>
 {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
 <a href="{% url 'ordenes:crear_ot' %}" class="btn btn-primary mb-3">
     Crear Orden

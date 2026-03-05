@@ -1,5 +1,6 @@
 from django.db import models
 from trabajadores.models import Trabajador
+from datetime import datetime
 
 # Create your models here.
 class Cliente(models.Model):
@@ -64,7 +65,28 @@ class Trabajador(models.Model):
     
 class OrdenTrabajo(models.Model):
 
-    idOT = models.AutoField(primary_key=True)
+    idOT = models.CharField(primary_key=True, max_length=8, editable=False)
+
+    def save(self, *args, **kwargs):
+
+        if not self.idOT:
+
+            year = datetime.now().year
+
+            # buscar última OT del año
+            last_ot = OrdenTrabajo.objects.filter(
+                idOT__startswith=str(year)
+            ).order_by('-idOT').first()
+
+            if last_ot:
+                last_number = int(last_ot.idOT[4:])
+                new_number = last_number + 1
+            else:
+                new_number = 1
+
+            self.idOT = f"{year}{new_number:04d}"
+
+        super().save(*args, **kwargs)
 
     fechaHoraSolicitud = models.DateTimeField()
     fechaEntregaTrabajo = models.DateField()
