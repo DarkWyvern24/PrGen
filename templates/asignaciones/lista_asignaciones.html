@@ -23,9 +23,12 @@
         <table class="table table-striped align-middle">
           <thead>
             <tr>
-              <th>OT</th>
               <th>Fecha Asignación</th>
-              <th>Fecha Entrega</th>
+              <th>Número</th>
+              <th>N° Cotizacion</th>
+              <th>Cliente</th>
+              <th>Referencia</th>
+              <th>Fecha Requerida</th>
               <th>Porcentaje</th>
               <th>Trabajadores</th>
               <th>Entregado</th>
@@ -35,8 +38,11 @@
           <tbody>
             {% for asignacion in asignaciones %}
               <tr>
-                <td>OT {{ asignacion.orden_trabajo.idOT }}</td>
                 <td>{{ asignacion.fecha_asignacion }}</td>
+                <td>{{ asignacion.orden_trabajo.idOT }}</td>
+                <td>{{ asignacion.orden_trabajo.numeroCotizacion }}</td>
+                <td>{{ asignacion.orden_trabajo.cliente.nombreCliente}}</td>
+                <td>{{ asignacion.orden_trabajo.descripcionTrabajo }}</td>
                 <td>{{ asignacion.fecha_entrega }}</td>
                 <td>{{ asignacion.porcentaje_trabajo }}%</td>
 

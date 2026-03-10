@@ -4,16 +4,18 @@
 
 {% block content %}
 
-<h2 class="mb-4">Órdenes de Trabajo</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Órdenes de Trabajo</h2>
+    <div>
+      <a href="{% url 'home' %}" class="btn btn-secondary">
+                          ← Volver al Dashboard
+                      </a>
+      <a href="{% url 'ordenes:crear_ot' %}" class="btn btn-success">
+        Crear Orden
+      </a>
+    </div>
+  </div>
 
-<a href="{% url 'home' %}" class="btn btn-secondary">
-                        ← Volver al Dashboard
-                    </a>
-{% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
-<a href="{% url 'ordenes:crear_ot' %}" class="btn btn-primary mb-3">
-    Crear Orden
-</a>
-{% endif %}
 
 <table class="table table-striped">
     <thead>

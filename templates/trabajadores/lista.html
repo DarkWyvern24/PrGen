@@ -9,18 +9,17 @@
 
 <div class="card shadow p-4">
 
-<h2 class="mb-4">Gestión de Trabajadores</h2>
-
-<div>
-    <a href="{% url 'home' %}" class="btn btn-secondary">
-                        ← Volver al Dashboard
-                    </a>
-
-    <a href="{% url 'trabajadores:crear_trabajador' %}" class="btn btn-primary mb-3">
-        Agregar Trabajador
-    </a>
-</div>
-
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Gestión de Trabajadores</h2>
+    <div>
+      <a href="{% url 'home' %}" class="btn btn-secondary">
+                          ← Volver al Dashboard
+                      </a>
+      <a href="{% url 'trabajadores:crear_trabajador' %}" class="btn btn-success">
+        Nuevo Trabajador
+      </a>
+    </div>
+  </div>
 
 <table class="table table-hover">
 

@@ -7,13 +7,16 @@
   <div class="col-lg-10">
     <div class="card shadow p-4">
 
-      <h2 class="mb-4">Asignación de Orden de Trabajo</h2>
-      <a href="{% url 'asignaciones:lista_asignaciones' %}" class="btn btn-secondary">
-                        ← Volver a la lista
-                    </a>
+      <h2 class="mb-4 text-primary fw-bold">Asignación de Orden de Trabajo</h2>
+
+      <a href="{% url 'asignaciones:lista_asignaciones' %}" class="btn btn-outline-primary mb-4">
+          ← Volver a la lista
       {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
       {% endif %}
+      </a>
+
+<div class="card shadow p-4 border-0">
 
       <form method="post" id="formAsignacion">
         {% csrf_token %}
