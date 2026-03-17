@@ -63,6 +63,7 @@
                 </td>
 
                 <td class="text-end">
+                  {% if request.user.rol != 'usuario' %}
                   <a href="{% url 'asignaciones:editar_asignacion' asignacion.id %}"
                      class="btn btn-sm btn-warning">
                     Editar
@@ -72,6 +73,9 @@
                      class="btn btn-sm btn-danger">
                     Eliminar
                   </a>
+                  {% else %}
+                    <span class="text-muted">Solo Lectura</span>
+                  {% endif %}
                 </td>
               </tr>
             {% empty %}

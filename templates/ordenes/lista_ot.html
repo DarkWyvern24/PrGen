@@ -10,9 +10,11 @@
       <a href="{% url 'home' %}" class="btn btn-secondary">
                           ← Volver al Dashboard
                       </a>
+      {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}  
       <a href="{% url 'ordenes:crear_ot' %}" class="btn btn-success">
         Crear Orden
       </a>
+      {% endif %}
     </div>
   </div>
 
@@ -41,7 +43,7 @@
             <td>{{ ot.nivelUrgencia }}</td>
             <td>{{ ot.porcentajeAvance }}%</td>
 
-            {% if request.user.rol != 'usuario' %}
+            {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
             <td>
                 <a href="{% url 'ordenes:editar_ot' ot.idOT %}" class="btn btn-warning btn-sm">
                     Editar
@@ -57,6 +59,10 @@
                         Eliminar
                     </button>
                 </form>
+            </td>
+            {% else %}
+            <td>
+                <span class="text-muted">Solo Lectura</span>
             </td>
             {% endif %}
         </tr>

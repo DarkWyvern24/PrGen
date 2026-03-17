@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from .models import Usuario, Auditoria
 from .forms import UsuarioForm
+from .decorators import admin_required, admin_general_required, no_usuario_required
 
 # FUNCIONES AUXILIARES
 
@@ -22,18 +23,7 @@ def es_admin_general(user):
 
 @login_required
 def dashboard(request):
-
-    if es_admin_general(request.user):
-        return render(request, 'usuarios/dashboard_admin_general.html')
-
-    elif getattr(request.user, 'rol', None) == 'admin':
-        return render(request, 'usuarios/dashboard_admin.html')
-
-    elif getattr(request.user, 'rol', None) == 'jefe_taller':
-        return render(request, 'usuarios/dashboard_jefe_taller.html')
-
-    else:
-        return render(request, 'usuarios/dashboard_usuario.html')
+    return render(request, 'usuarios/dashboard_general.html')
 
 
 #DASHBOARD JEFES DE TALLER@login_required
@@ -47,11 +37,8 @@ def dashboard_jefe_taller(request):
 # LISTAR USUARIOS
 
 @login_required
+@no_usuario_required
 def lista_usuarios(request):
-
-    if not es_admin(request.user):
-        return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
-
     usuarios = Usuario.objects.all()
     return render(request, 'usuarios/lista_usuarios.html', {'usuarios': usuarios})
 

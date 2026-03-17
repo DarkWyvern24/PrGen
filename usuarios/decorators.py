@@ -14,3 +14,10 @@ def admin_general_required(view_func):
             return view_func(request, *args, **kwargs)
         return HttpResponseForbidden("No autorizado")
     return wrapper
+
+def no_usuario_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.rol != 'usuario':
+            return view_func(request, *args, **kwargs)
+        return HttpResponseForbidden("No autorizado")
+    return wrapper
