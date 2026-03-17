@@ -5,6 +5,10 @@ from django.contrib import messages
 
 from .models import OrdenTrabajo, Solicitante, Cliente, Responsable
 from .forms import OrdenTrabajoForm
+from datetime import date
+from django.db.models import Exists, OuterRef, Q
+from usuarios.decorators import admin_required
+from asignaciones.models import AsignacionOT
 
 
 def es_admin(user):
@@ -172,3 +176,131 @@ def eliminar_ot(request, id):
         messages.success(request, "Orden eliminada correctamente.")
 
     return redirect('ordenes:lista_ot')
+
+
+def calcular_porcentaje_esperado(fecha_inicio, fecha_entrega, hoy=None):
+    """
+    Ejemplo:
+    inicio = 10/03
+    entrega = 14/03
+    hoy = 12/03
+    resultado = 40%
+    """
+    if not fecha_inicio or not fecha_entrega:
+        return 0
+
+    if hoy is None:
+        hoy = date.today()
+
+    # Si fecha_inicio viene como DateTimeField
+    if hasattr(fecha_inicio, "date"):
+        fecha_inicio = fecha_inicio.date()
+
+    if hasattr(fecha_entrega, "date"):
+        fecha_entrega = fecha_entrega.date()
+
+    if hoy <= fecha_inicio:
+        return 0
+
+    if hoy >= fecha_entrega:
+        return 100
+
+    total_dias = (fecha_entrega - fecha_inicio).days + 1
+    dias_transcurridos = (hoy - fecha_inicio).days
+
+    if total_dias <= 0:
+        return 100
+
+    porcentaje = round((dias_transcurridos / total_dias) * 100)
+    return max(0, min(100, porcentaje))
+
+
+def obtener_estado_avance(real, esperado, finalizada=False):
+    """
+    rojo: atrasado
+    amarillo: similar
+    verde: terminado o adelantado
+    """
+    if finalizada or real >= 100:
+        return "verde"
+
+    if real > esperado:
+        return "verde"
+
+    if abs(real - esperado) <= 5:
+        return "amarillo"
+
+    return "rojo"
+
+
+@admin_required
+def reporte_ot(request):
+    hoy = date.today()
+
+    asignaciones_subquery = AsignacionOT.objects.filter(
+        orden_trabajo=OuterRef("pk")
+    )
+
+    ots = OrdenTrabajo.objects.annotate(
+        tiene_asignacion=Exists(asignaciones_subquery)
+    ).order_by("-idOT")
+
+    total_ot = ots.count()
+
+    no_iniciadas = ots.filter(
+        Q(tiene_asignacion=False) |
+        Q(tiene_asignacion=True, porcentajeAvance=0)
+    )
+
+    en_proceso = ots.filter(
+        Q(tiene_asignacion=True) &
+        Q(porcentajeAvance__gt=0) &
+        Q(porcentajeAvance__lt=100)
+    ).exclude(
+        estadoOT__nombreEstado__iexact="entregada"
+    )
+
+    finalizadas = ots.filter(
+        Q(porcentajeAvance__gte=100) |
+        Q(estadoOT__nombreEstado__iexact="entregada")
+    )
+
+    listado_en_proceso = []
+
+    for ot in en_proceso:
+        porcentaje_real = ot.porcentajeAvance or 0
+        fecha_inicio = ot.fechaHoraSolicitud
+        fecha_entrega = ot.fechaEntregaTrabajo
+        estado_nombre = ot.estadoOT.nombreEstado.lower() if ot.estadoOT else ""
+
+        porcentaje_esperado = calcular_porcentaje_esperado(
+            fecha_inicio=fecha_inicio,
+            fecha_entrega=fecha_entrega,
+            hoy=hoy
+        )
+
+        finalizada_flag = porcentaje_real >= 100 or estado_nombre == "entregada"
+
+        semaforo = obtener_estado_avance(
+            real=porcentaje_real,
+            esperado=porcentaje_esperado,
+            finalizada=finalizada_flag
+        )
+
+        listado_en_proceso.append({
+            "ot": ot,
+            "numero_ot": ot.idOT,
+            "porcentaje_real": round(porcentaje_real, 2),
+            "porcentaje_esperado": porcentaje_esperado,
+            "semaforo": semaforo,
+        })
+
+    context = {
+        "total_ot": total_ot,
+        "total_no_iniciadas": no_iniciadas.count(),
+        "total_en_proceso": en_proceso.count(),
+        "total_finalizadas": finalizadas.count(),
+        "listado_en_proceso": listado_en_proceso,
+    }
+
+    return render(request, "ordenes/reporte_ot.html", context)

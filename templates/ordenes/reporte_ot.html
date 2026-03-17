@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Reporte de Órdenes de Trabajo</h2>
+
+    <a href="{% url 'home' %}" class="btn btn-secondary mb-3">
+        ← Volver al dashboard
+    </a>
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Total OT ingresadas</h6>
+                    <h3>{{ total_ot }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">No iniciadas</h6>
+                    <h3 class="text-danger">{{ total_no_iniciadas }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">En proceso</h6>
+                    <h3 class="text-warning">{{ total_en_proceso }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Finalizadas</h6>
+                    <h3 class="text-success">{{ total_finalizadas }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">Distribución de OT</h5>
+
+            <div
+                id="datos-grafico"
+                data-no-iniciadas="{{ total_no_iniciadas|default:0 }}"
+                data-en-proceso="{{ total_en_proceso|default:0 }}"
+                data-finalizadas="{{ total_finalizadas|default:0 }}">
+            </div>
+
+            <div style="max-width: 420px; margin: auto;">
+                <canvas id="graficoOT"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="mb-3">OT en proceso</h5>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>N° OT</th>
+                            <th>% Avance</th>
+                            <th>% Esperado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in listado_en_proceso %}
+                        <tr>
+                            <td>{{ item.numero_ot }}</td>
+                            <td>{{ item.porcentaje_real }}%</td>
+                            <td>{{ item.porcentaje_esperado }}%</td>
+                            <td>
+                                {% if item.semaforo == "rojo" %}
+                                    <span class="badge bg-danger">Atrasado</span>
+                                {% elif item.semaforo == "amarillo" %}
+                                    <span class="badge bg-warning text-dark">En rango</span>
+                                {% elif item.semaforo == "verde" %}
+                                    <span class="badge bg-success">Correcto</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Sin estado</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No hay OT en proceso</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const datos = document.getElementById("datos-grafico");
+        const canvas = document.getElementById("graficoOT");
+
+        if (!datos || !canvas) {
+            return;
+        }
+
+        const totalNoIniciadas = Number(datos.dataset.noIniciadas || 0);
+        const totalEnProceso = Number(datos.dataset.enProceso || 0);
+        const totalFinalizadas = Number(datos.dataset.finalizadas || 0);
+
+        const ctx = canvas.getContext("2d");
+
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: ["No iniciadas", "En proceso", "Finalizadas"],
+                datasets: [
+                    {
+                        data: [
+                            totalNoIniciadas,
+                            totalEnProceso,
+                            totalFinalizadas
+                        ],
+                        backgroundColor: [
+                            "#dc3545",
+                            "#ffc107",
+                            "#198754"
+                        ],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

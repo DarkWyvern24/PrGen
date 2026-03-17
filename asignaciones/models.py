@@ -32,4 +32,4 @@ class AsignacionOT(models.Model):
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Asignación OT {self.orden_trabajo.numero_ot}"
+        return f"Asignación OT {self.orden_trabajo.idOt}"

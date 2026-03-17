@@ -2,6 +2,7 @@ from django.db import models
 from trabajadores.models import Trabajador
 from datetime import datetime
 
+
 # Create your models here.
 class Cliente(models.Model):
     nombreCliente = models.CharField(max_length=250)
