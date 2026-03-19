@@ -9,7 +9,14 @@
 
 <div class="card shadow p-4">
 
-<h2 class="mb-4">Crear Trabajador</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Crear Trabajador</h2>
+    <div>
+      <a href="{% url 'trabajadores:lista_trabajadores' %}" class="btn btn-secondary">
+                          ← Volver a la lista
+                      </a>
+    </div>
+  </div>
 
 <form method="post">
 {% csrf_token %}

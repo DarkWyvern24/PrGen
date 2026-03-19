@@ -6,7 +6,7 @@ from django.contrib import messages
 from .models import OrdenTrabajo, Solicitante, Cliente, Responsable
 from .forms import OrdenTrabajoForm
 from datetime import date
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef, Q, Subquery
 from usuarios.decorators import admin_required
 from asignaciones.models import AsignacionOT
 
@@ -237,41 +237,44 @@ def obtener_estado_avance(real, esperado, finalizada=False):
 def reporte_ot(request):
     hoy = date.today()
 
-    asignaciones_subquery = AsignacionOT.objects.filter(
+    asignaciones = AsignacionOT.objects.filter(
         orden_trabajo=OuterRef("pk")
-    )
+    ).order_by("-id")
 
     ots = OrdenTrabajo.objects.annotate(
-        tiene_asignacion=Exists(asignaciones_subquery)
+        tiene_asignacion=Exists(asignaciones),
+        asignacion_porcentaje=Subquery(asignaciones.values("porcentaje_trabajo")[:1]),
+        asignacion_entregado=Subquery(asignaciones.values("entregado")[:1]),
     ).order_by("-idOT")
 
     total_ot = ots.count()
 
     no_iniciadas = ots.filter(
         Q(tiene_asignacion=False) |
-        Q(tiene_asignacion=True, porcentajeAvance=0)
+        Q(tiene_asignacion=True, asignacion_porcentaje=0, asignacion_entregado=False)
     )
 
     en_proceso = ots.filter(
         Q(tiene_asignacion=True) &
-        Q(porcentajeAvance__gt=0) &
-        Q(porcentajeAvance__lt=100)
-    ).exclude(
-        estadoOT__nombreEstado__iexact="entregada"
+        Q(asignacion_porcentaje__gt=0) &
+        Q(asignacion_porcentaje__lt=100) &
+        Q(asignacion_entregado=False)
     )
 
     finalizadas = ots.filter(
-        Q(porcentajeAvance__gte=100) |
-        Q(estadoOT__nombreEstado__iexact="entregada")
+        Q(tiene_asignacion=True) &
+        (
+            Q(asignacion_porcentaje__gte=100) |
+            Q(asignacion_entregado=True)
+        )
     )
 
     listado_en_proceso = []
 
     for ot in en_proceso:
-        porcentaje_real = ot.porcentajeAvance or 0
+        porcentaje_real = ot.asignacion_porcentaje or 0
         fecha_inicio = ot.fechaHoraSolicitud
         fecha_entrega = ot.fechaEntregaTrabajo
-        estado_nombre = ot.estadoOT.nombreEstado.lower() if ot.estadoOT else ""
 
         porcentaje_esperado = calcular_porcentaje_esperado(
             fecha_inicio=fecha_inicio,
@@ -279,7 +282,7 @@ def reporte_ot(request):
             hoy=hoy
         )
 
-        finalizada_flag = porcentaje_real >= 100 or estado_nombre == "entregada"
+        finalizada_flag = porcentaje_real >= 100 or ot.asignacion_entregado
 
         semaforo = obtener_estado_avance(
             real=porcentaje_real,
