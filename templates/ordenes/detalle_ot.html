@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle OT{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Detalle de Orden de Trabajo</h2>
+        <a href="{% url 'ordenes:listado_ot' %}" class="btn btn-secondary">
+            ← Volver a Órdenes
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <strong>Fecha:</strong><br>
+                    {{ ot.fecha|date:"d-m-Y"|default:"-" }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>N° OT:</strong><br>
+                    {{ ot.numero }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>N° Cotización:</strong><br>
+                    {{ ot.numero_cotizacion|default:"-" }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Cliente:</strong><br>
+                    {{ ot.cliente|default:"-" }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Referencia:</strong><br>
+                    {{ ot.referencia|default:"-" }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Atención:</strong><br>
+                    {{ ot.atencion|default:"-" }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Responsable:</strong><br>
+                    {{ ot.responsable|default:"-" }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Estado:</strong><br>
+                    {{ ot.estado|default:"-" }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Nivel de urgencia:</strong><br>
+                    {{ ot.nivel_urgencia|default:"-" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -5,85 +5,108 @@
 {% block content %}
 
 <div class="row justify-content-center">
-<div class="col-lg-10">
+  <div class="col-lg-11">
 
-<div class="card shadow p-4">
+    <div class="card shadow p-4">
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Gestión de Trabajadores</h2>
-    <div>
-      <a href="{% url 'home' %}" class="btn btn-secondary">
-                          ← Volver al Dashboard
-                      </a>
-      {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
-      <a href="{% url 'trabajadores:crear_trabajador' %}" class="btn btn-success">
-        Nuevo Trabajador
-      </a>
-      {% endif %}
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Gestión de Trabajadores</h2>
+        <div>
+          <a href="{% url 'home' %}" class="btn btn-secondary">
+            ← Volver al Dashboard
+          </a>
+          {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
+          <a href="{% url 'trabajadores:crear_trabajador' %}" class="btn btn-success">
+            Nuevo Trabajador
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <form method="get" class="row g-2 mb-4">
+        <div class="col-md-5">
+          <input
+            type="text"
+            name="q"
+            class="form-control"
+            placeholder="Buscar por nombre, rut o cargo..."
+            value="{{ q }}"
+          >
+        </div>
+
+        <div class="col-md-3">
+          <select name="ordenar" class="form-select">
+            <option value="id" {% if ordenar == 'id' %}selected{% endif %}>Ordenar por ID</option>
+            <option value="nombre" {% if ordenar == 'nombre' %}selected{% endif %}>Ordenar por Nombre</option>
+            <option value="rut" {% if ordenar == 'rut' %}selected{% endif %}>Ordenar por RUT</option>
+            <option value="cargo" {% if ordenar == 'cargo' %}selected{% endif %}>Ordenar por Cargo</option>
+            <option value="activo" {% if ordenar == 'activo' %}selected{% endif %}>Ordenar por Estado</option>
+            <option value="creado" {% if ordenar == 'creado' %}selected{% endif %}>Ordenar por Fecha creación</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <select name="direccion" class="form-select">
+            <option value="asc" {% if direccion == 'asc' %}selected{% endif %}>Ascendente</option>
+            <option value="desc" {% if direccion == 'desc' %}selected{% endif %}>Descendente</option>
+          </select>
+        </div>
+
+        <div class="col-md-2 d-grid">
+          <button type="submit" class="btn btn-primary">Aplicar</button>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>RUT</th>
+              <th>Cargo</th>
+              <th>Activo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for trabajador in trabajadores %}
+            <tr>
+              <td>{{ trabajador.id }}</td>
+              <td>{{ trabajador.nombre }}</td>
+              <td>{{ trabajador.rut }}</td>
+              <td>{{ trabajador.cargo }}</td>
+              <td>
+                {% if trabajador.activo %}
+                <span class="badge bg-success">Activo</span>
+                {% else %}
+                <span class="badge bg-danger">Inactivo</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
+                <a href="{% url 'trabajadores:editar_trabajador' trabajador.id %}"
+                  class="btn btn-sm btn-outline-secondary">
+                  Editar
+                </a>
+                {% else %}
+                <span class="text-muted">Solo Lectura</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6">No hay trabajadores registrados</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
-
-<table class="table table-hover">
-
-<thead>
-<tr>
-    <th>ID</th>
-    <th>Nombre</th>
-    <th>Cargo</th>
-    <th>Activo</th>
-    <th>Acciones</th>
-</tr>
-</thead>
-
-<tbody>
-
-{% for trabajador in trabajadores %}
-<tr>
-
-<td>{{ trabajador.id }}</td>
-
-<td>
-{{ trabajador.nombre }} {{ trabajador.apellido }}
-</td>
-
-<td>{{ trabajador.cargo }}</td>
-
-<td>
-{% if trabajador.activo %}
-<span class="badge bg-success">Activo</span>
-{% else %}
-<span class="badge bg-danger">Inactivo</span>
-{% endif %}
-</td>
-
-<td>
-
-{% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
-  <a href="{% url 'trabajadores:editar_trabajador' trabajador.id %}"
-  class="btn btn-sm btn-outline-secondary">
-  Editar
-  </a>
-{%else%}
-  <span class="text-muted">Solo Lectura</span>
-{% endif %}
-
-</td>
-
-</tr>
-{% empty %}
-
-<tr>
-<td colspan="5">No hay trabajadores registrados</td>
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-</div>
 </div>
 
 {% endblock %}

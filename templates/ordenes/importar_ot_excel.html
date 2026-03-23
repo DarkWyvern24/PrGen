@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Importar Excel de OT{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Importar Órdenes de Trabajo desde Excel</h2>
+        <a href="{% url 'ordenes:listado_ot' %}" class="btn btn-secondary">
+            ← Volver a Órdenes
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.archivo.id_for_label }}" class="form-label fw-semibold">
+                        Archivo Excel
+                    </label>
+                    {{ form.archivo }}
+                    {% if form.archivo.errors %}
+                        <div class="text-danger mt-2">
+                            {{ form.archivo.errors }}
+                        </div>
+                    {% endif %}
+                    {% if form.archivo.help_text %}
+                        <div class="form-text">
+                            {{ form.archivo.help_text }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Importar archivo
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

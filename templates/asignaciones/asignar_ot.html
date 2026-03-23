@@ -1,123 +1,111 @@
-{# asignaciones/templates/asignaciones/asignar_ot.html #}
 {% extends 'base.html' %}
 {% block title %}Asignar Orden de Trabajo{% endblock %}
 {% block content %}
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Asignación de Orden de Trabajo</h2>
-    <div>
-      <a href="{% url 'asignaciones:lista_asignaciones' %}" class="btn btn-secondary">
-        ← Volver a Asignaciones
-      </a>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Asignación de Orden de Trabajo</h2>
+  <div>
+    <a href="{% url 'asignaciones:lista_asignaciones' %}" class="btn btn-secondary">
+      ← Volver a Asignaciones
+    </a>
   </div>
+</div>
 
 <div class="card shadow p-4 border-0">
+  <form method="post" id="formAsignacion">
+    {% csrf_token %}
 
-      <form method="post" id="formAsignacion">
-        {% csrf_token %}
-
-        <!-- ✅ Buscador OT (integrado al scroller) -->
-        <div class="mb-2">
-          <label class="form-label">Buscar OT</label>
-          <input id="buscarOT" type="text" class="form-control" placeholder="Escribe para filtrar OTs...">
-        </div>
-
-        <!-- ✅ OT como scroller -->
-        <div class="mb-3">
-          <label class="form-label">Seleccionar Orden de Trabajo</label>
-
-          {# Render manual para que sea listbox (scroller) #}
-          <select name="orden_trabajo" id="selectOT" class="form-select" size="8" required>
-            <option value="">-- Seleccione OT --</option>
-
-            {% for ot in form.fields.orden_trabajo.queryset %}
-              <option
-                value="{{ ot.pk }}"
-                {% if form.instance.pk and form.instance.orden_trabajo_id == ot.pk %}selected{% endif %}
-              >
-                OT {{ ot.idOT }} - {{ ot.descripcionTrabajo }}
-              </option>
-            {% endfor %}
-          </select>
-
-          {# Si quieres mostrar errores del campo #}
-          {% if form.orden_trabajo.errors %}
-            <div class="text-danger small mt-1">
-              {{ form.orden_trabajo.errors }}
-            </div>
-          {% endif %}
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Porcentaje de Trabajo</label>
-          {{ form.porcentaje_trabajo }}
-          {% if form.porcentaje_trabajo.errors %}
-            <div class="text-danger small mt-1">
-              {{ form.porcentaje_trabajo.errors }}
-            </div>
-          {% endif %}
-        </div>
-
-        <div class="row">
-          <div class="col-md-5">
-            <label class="form-label">Trabajadores Disponibles</label>
-
-            <!-- Buscador trabajadores -->
-            <input id="buscarTrab" type="text" class="form-control mb-2" placeholder="Buscar trabajador...">
-
-            <select id="disponibles" class="form-select" multiple size="10">
-              {% if asignacion %}
-                {# Si estamos editando, excluimos los ya asignados #}
-                {% for t in trabajadores %}
-                  {% if t not in asignacion.trabajadores.all %}
-                    <option value="{{ t.pk }}">{{ t }}</option>
-                  {% endif %}
-                {% endfor %}
-              {% else %}
-                {% for t in trabajadores %}
-                  <option value="{{ t.pk }}">{{ t }}</option>
-                {% endfor %}
-              {% endif %}
-            </select>
-          </div>
-
-          <div class="col-md-2 text-center d-flex flex-column justify-content-center">
-            <button type="button" class="btn btn-primary mb-2" onclick="mover('disponibles','asignados')">&gt;&gt;</button>
-            <button type="button" class="btn btn-secondary" onclick="mover('asignados','disponibles')">&lt;&lt;</button>
-          </div>
-
-          <div class="col-md-5">
-            <label class="form-label">Trabajadores Asignados</label>
-
-            <!-- IMPORTANTE: name="trabajadores_asignados" para que el POST lleve la lista -->
-            <select id="asignados" name="trabajadores_asignados" class="form-select" multiple size="10">
-              {% if asignacion %}
-                {% for t in asignacion.trabajadores.all %}
-                  <option value="{{ t.pk }}" selected>{{ t }}</option>
-                {% endfor %}
-              {% endif %}
-            </select>
-          </div>
-        </div>
-
-        <div class="form-check mt-4">
-          {{ form.entregado }}
-          <label class="form-check-label">Trabajo Entregado</label>
-          {% if form.entregado.errors %}
-            <div class="text-danger small mt-1">
-              {{ form.entregado.errors }}
-            </div>
-          {% endif %}
-        </div>
-
-        <button type="submit" class="btn btn-success w-100 mt-4">
-          Guardar Asignación
-        </button>
-      </form>
-
+    <div class="mb-2">
+      <label class="form-label">Buscar OT</label>
+      <input id="buscarOT" type="text" class="form-control" placeholder="Escribe para filtrar OTs...">
     </div>
-  </div>
+
+    <div class="mb-3">
+      <label class="form-label">Seleccionar Orden de Trabajo</label>
+
+      <select name="orden_trabajo" id="selectOT" class="form-select" size="8" required>
+        <option value="">-- Seleccione OT --</option>
+
+        {% for ot in form.fields.orden_trabajo.queryset %}
+          <option
+            value="{{ ot.pk }}"
+            {% if form.instance.pk and form.instance.orden_trabajo_id == ot.pk %}selected{% endif %}
+          >
+            OT {{ ot.numero }} - {{ ot.cliente }} - {{ ot.referencia }}
+          </option>
+        {% endfor %}
+      </select>
+
+      {% if form.orden_trabajo.errors %}
+        <div class="text-danger small mt-1">
+          {{ form.orden_trabajo.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Porcentaje de Trabajo</label>
+      {{ form.porcentaje_trabajo }}
+      {% if form.porcentaje_trabajo.errors %}
+        <div class="text-danger small mt-1">
+          {{ form.porcentaje_trabajo.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="row">
+      <div class="col-md-5">
+        <label class="form-label">Trabajadores Disponibles</label>
+
+        <input id="buscarTrab" type="text" class="form-control mb-2" placeholder="Buscar trabajador...">
+
+        <select id="disponibles" class="form-select" multiple size="10">
+          {% if asignacion %}
+            {% for t in trabajadores %}
+              {% if t not in asignacion.trabajadores.all %}
+                <option value="{{ t.pk }}">{{ t }}</option>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% for t in trabajadores %}
+              <option value="{{ t.pk }}">{{ t }}</option>
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="col-md-2 text-center d-flex flex-column justify-content-center">
+        <button type="button" class="btn btn-primary mb-2" onclick="mover('disponibles','asignados')">&gt;&gt;</button>
+        <button type="button" class="btn btn-secondary" onclick="mover('asignados','disponibles')">&lt;&lt;</button>
+      </div>
+
+      <div class="col-md-5">
+        <label class="form-label">Trabajadores Asignados</label>
+
+        <select id="asignados" name="trabajadores_asignados" class="form-select" multiple size="10">
+          {% if asignacion %}
+            {% for t in asignacion.trabajadores.all %}
+              <option value="{{ t.pk }}" selected>{{ t }}</option>
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-check mt-4">
+      {{ form.entregado }}
+      <label class="form-check-label">Trabajo Entregado</label>
+      {% if form.entregado.errors %}
+        <div class="text-danger small mt-1">
+          {{ form.entregado.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-success w-100 mt-4">
+      Guardar Asignación
+    </button>
+  </form>
 </div>
 
 <script>
@@ -130,26 +118,22 @@
     });
   }
 
-  // Antes de enviar: marcar TODOS los "asignados" como selected
-  // (si no, el browser puede mandar vacío)
   document.getElementById("formAsignacion").addEventListener("submit", function () {
     const asignados = document.getElementById("asignados");
     Array.from(asignados.options).forEach(opt => opt.selected = true);
   });
 
-  // Filtro OT (listbox)
   document.getElementById("buscarOT").addEventListener("input", function () {
     const q = this.value.toLowerCase();
     const sel = document.getElementById("selectOT");
 
     Array.from(sel.options).forEach((opt, idx) => {
-      if (idx === 0) return; // placeholder
+      if (idx === 0) return;
       const show = opt.text.toLowerCase().includes(q);
       opt.hidden = !show;
     });
   });
 
-  // Filtro trabajadores disponibles
   document.getElementById("buscarTrab").addEventListener("input", function () {
     const q = this.value.toLowerCase();
     const sel = document.getElementById("disponibles");

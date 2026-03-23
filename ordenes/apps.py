@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class OrdenesConfig(AppConfig):
-    name = 'ordenes'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "ordenes"

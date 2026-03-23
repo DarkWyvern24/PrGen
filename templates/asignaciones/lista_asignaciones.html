@@ -8,8 +8,8 @@
     <h2>Asignaciones</h2>
     <div>
       <a href="{% url 'home' %}" class="btn btn-secondary">
-                          ← Volver al Dashboard
-                      </a>
+        ← Volver al Dashboard
+      </a>
       <a href="{% url 'asignaciones:asignar_ot' %}" class="btn btn-success">
         Nueva Asignación
       </a>
@@ -25,10 +25,10 @@
             <tr>
               <th>Fecha Asignación</th>
               <th>Número</th>
-              <th>N° Cotizacion</th>
+              <th>N° Cotización</th>
               <th>Cliente</th>
               <th>Referencia</th>
-              <th>Fecha Requerida</th>
+              <th>Fecha Entrega</th>
               <th>Porcentaje</th>
               <th>Trabajadores</th>
               <th>Entregado</th>
@@ -39,10 +39,10 @@
             {% for asignacion in asignaciones %}
               <tr>
                 <td>{{ asignacion.fecha_asignacion }}</td>
-                <td>{{ asignacion.orden_trabajo.idOT }}</td>
-                <td>{{ asignacion.orden_trabajo.numeroCotizacion }}</td>
-                <td>{{ asignacion.orden_trabajo.cliente.nombreCliente}}</td>
-                <td>{{ asignacion.orden_trabajo.descripcionTrabajo }}</td>
+                <td>{{ asignacion.orden_trabajo.numero }}</td>
+                <td>{{ asignacion.orden_trabajo.numero_cotizacion }}</td>
+                <td>{{ asignacion.orden_trabajo.cliente }}</td>
+                <td>{{ asignacion.orden_trabajo.referencia }}</td>
                 <td>{{ asignacion.fecha_entrega }}</td>
                 <td>{{ asignacion.porcentaje_trabajo }}%</td>
 
@@ -64,15 +64,13 @@
 
                 <td class="text-end">
                   {% if request.user.rol != 'usuario' %}
-                  <a href="{% url 'asignaciones:editar_asignacion' asignacion.id %}"
-                     class="btn btn-sm btn-warning">
-                    Editar
-                  </a>
+                    <a href="{% url 'asignaciones:editar_asignacion' asignacion.id %}" class="btn btn-sm btn-warning">
+                      Editar
+                    </a>
 
-                  <a href="{% url 'asignaciones:eliminar_asignacion' asignacion.id %}"
-                     class="btn btn-sm btn-danger">
-                    Eliminar
-                  </a>
+                    <a href="{% url 'asignaciones:eliminar_asignacion' asignacion.id %}" class="btn btn-sm btn-danger">
+                      Eliminar
+                    </a>
                   {% else %}
                     <span class="text-muted">Solo Lectura</span>
                   {% endif %}
@@ -80,7 +78,7 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="7" class="text-center text-muted">No hay asignaciones.</td>
+                <td colspan="10" class="text-center text-muted">No hay asignaciones.</td>
               </tr>
             {% endfor %}
           </tbody>

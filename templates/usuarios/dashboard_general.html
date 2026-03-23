@@ -29,11 +29,11 @@
 
             {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
                 <!-- ORDENES -->
-                <a href="{% url 'ordenes:lista_ot' %}" class="btn btn-dark w-100 mb-3">
+                <a href="{% url 'ordenes:listado_ot' %}" class="btn btn-dark w-100 mb-3">
                     Gestionar Órdenes de Trabajo
                 </a>
             {% elif request.user.rol == 'jefe_taller' or request.user.rol == 'usuario' %}
-                <a href="{% url 'ordenes:lista_ot' %}" class="btn btn-dark w-100 mb-3">
+                <a href="{% url 'ordenes:listado_ot' %}" class="btn btn-dark w-100 mb-3">
                     Ver Órdenes de Trabajo
                 </a>
             {% endif %}

@@ -1,4 +1,3 @@
-# asignaciones/forms.py
 from django import forms
 from .models import AsignacionOT
 from ordenes.models import OrdenTrabajo
@@ -12,8 +11,8 @@ class AsignacionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # ✅ OT disponibles (ordenadas). Tu PK es idOT, pero opt.pk funciona igual.
-        self.fields["orden_trabajo"].queryset = OrdenTrabajo.objects.all().order_by("-idOT")
+        # Ordenar por numero, no por idOT
+        self.fields["orden_trabajo"].queryset = OrdenTrabajo.objects.all().order_by("-numero")
 
         # Bootstrap
         self.fields["orden_trabajo"].widget.attrs.update({"class": "form-select"})

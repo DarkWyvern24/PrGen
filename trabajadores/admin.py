@@ -4,19 +4,21 @@ from .models import Trabajador
 
 @admin.register(Trabajador)
 class TrabajadorAdmin(admin.ModelAdmin):
-
     list_display = (
         "id",
         "nombre",
+        "rut",
         "cargo",
-        "activo"
+        "activo",
     )
 
     search_fields = (
         "nombre",
-        "cargo"
+        "rut",
+        "cargo",
     )
 
     list_filter = (
         "activo",
+        "cargo",
     )

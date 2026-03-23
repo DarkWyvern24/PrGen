@@ -1,103 +1,95 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Órdenes de Trabajo{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Reporte de Órdenes de Trabajo</h2>
-        <a href="{% url 'home' %}" class="btn btn-secondary">
-            ← Volver al dashboard
-        </a>
+        <h2 class="mb-0">Reporte de Órdenes de Trabajo</h2>
+        <div class="d-flex gap-2">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                ← Volver al Dashboard
+            </a>
+            <a href="{% url 'ordenes:listado_ot' %}" class="btn btn-primary">
+                Ver Órdenes
+            </a>
+        </div>
     </div>
+
     <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0 h-100">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center">
                 <div class="card-body">
-                    <h6 class="text-muted">Total OT ingresadas</h6>
-                    <h3>{{ total_ot }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">No iniciadas</h6>
-                    <h3 class="text-danger">{{ total_no_iniciadas }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">En proceso</h6>
-                    <h3 class="text-warning">{{ total_en_proceso }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Finalizadas</h6>
-                    <h3 class="text-success">{{ total_finalizadas }}</h3>
+                    <h5 class="card-title">Total OT</h5>
+                    <h2 class="fw-bold">{{ total_ot }}</h2>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <h5 class="mb-3">Distribución de OT</h5>
-
-            <div
-                id="datos-grafico"
-                data-no-iniciadas="{{ total_no_iniciadas|default:0 }}"
-                data-en-proceso="{{ total_en_proceso|default:0 }}"
-                data-finalizadas="{{ total_finalizadas|default:0 }}">
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">
+                    Órdenes por Estado
+                </div>
+                <div class="card-body">
+                    <canvas id="graficoEstados"></canvas>
+                </div>
             </div>
+        </div>
 
-            <div style="max-width: 420px; margin: auto;">
-                <canvas id="graficoOT"></canvas>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">
+                    Órdenes por Nivel de Urgencia
+                </div>
+                <div class="card-body">
+                    <canvas id="graficoUrgencias"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white">
+            Últimas Órdenes de Trabajo
+        </div>
         <div class="card-body">
-            <h5 class="mb-3">OT en proceso</h5>
-
             <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-dark">
+                <table class="table table-striped table-hover align-middle">
+                    <thead>
                         <tr>
+                            <th>Fecha</th>
                             <th>N° OT</th>
-                            <th>% Avance</th>
-                            <th>% Esperado</th>
+                            <th>N° Cotización</th>
+                            <th>Cliente</th>
+                            <th>Referencia</th>
+                            <th>Responsable</th>
                             <th>Estado</th>
+                            <th>Nivel de urgencia</th>
+                            <th>Fecha Entrega</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in listado_en_proceso %}
+                        {% for ot in ultimas_ot %}
                         <tr>
-                            <td>{{ item.numero_ot }}</td>
-                            <td>{{ item.porcentaje_real }}%</td>
-                            <td>{{ item.porcentaje_esperado }}%</td>
-                            <td>
-                                {% if item.semaforo == "rojo" %}
-                                    <span class="badge bg-danger">Atrasado</span>
-                                {% elif item.semaforo == "amarillo" %}
-                                    <span class="badge bg-warning text-dark">En rango</span>
-                                {% elif item.semaforo == "verde" %}
-                                    <span class="badge bg-success">Correcto</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Sin estado</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ ot.fecha|date:"d-m-Y"|default:"-" }}</td>
+                            <td>{{ ot.numero }}</td>
+                            <td>{{ ot.numero_cotizacion|default:"-" }}</td>
+                            <td>{{ ot.cliente|default:"-" }}</td>
+                            <td>{{ ot.referencia|default:"-" }}</td>
+                            <td>{{ ot.responsable|default:"-" }}</td>
+                            <td>{{ ot.estado|default:"-" }}</td>
+                            <td>{{ ot.nivel_urgencia|default:"-" }}</td>
+                            <td>{{ ot.fecha_entrega|date:"d-m-Y"|default:"-" }}</td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center">No hay OT en proceso</td>
+                            <td colspan="8" class="text-center text-muted">
+                                No hay órdenes de trabajo registradas.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -105,53 +97,54 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{ estados_labels|json_script:"estados-labels" }}
+{{ estados_data|json_script:"estados-data" }}
+{{ urgencias_labels|json_script:"urgencias-labels" }}
+{{ urgencias_data|json_script:"urgencias-data" }}
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const datos = document.getElementById("datos-grafico");
-        const canvas = document.getElementById("graficoOT");
+    const estadosLabels = JSON.parse(document.getElementById("estados-labels").textContent);
+    const estadosData = JSON.parse(document.getElementById("estados-data").textContent);
 
-        if (!datos || !canvas) {
-            return;
-        }
+    const urgenciasLabels = JSON.parse(document.getElementById("urgencias-labels").textContent);
+    const urgenciasData = JSON.parse(document.getElementById("urgencias-data").textContent);
 
-        const totalNoIniciadas = Number(datos.dataset.noIniciadas || 0);
-        const totalEnProceso = Number(datos.dataset.enProceso || 0);
-        const totalFinalizadas = Number(datos.dataset.finalizadas || 0);
-
-        const ctx = canvas.getContext("2d");
-
-        new Chart(ctx, {
-            type: "pie",
-            data: {
-                labels: ["No iniciadas", "En proceso", "Finalizadas"],
-                datasets: [
-                    {
-                        data: [
-                            totalNoIniciadas,
-                            totalEnProceso,
-                            totalFinalizadas
-                        ],
-                        backgroundColor: [
-                            "#dc3545",
-                            "#ffc107",
-                            "#198754"
-                        ],
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: "bottom"
-                    }
+    new Chart(document.getElementById("graficoEstados"), {
+        type: "bar",
+        data: {
+            labels: estadosLabels,
+            datasets: [{
+                label: "Cantidad de OT",
+                data: estadosData
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
                 }
             }
-        });
+        }
+    });
+
+    new Chart(document.getElementById("graficoUrgencias"), {
+        type: "pie",
+        data: {
+            labels: urgenciasLabels,
+            datasets: [{
+                label: "Cantidad de OT",
+                data: urgenciasData
+            }]
+        },
+        options: {
+            responsive: true
+        }
     });
 </script>
 {% endblock %}

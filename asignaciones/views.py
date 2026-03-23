@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from .models import AsignacionOT
 from .forms import AsignacionForm
-from ordenes.models import OrdenTrabajo
 from trabajadores.models import Trabajador
 
 
@@ -24,7 +23,6 @@ def lista_asignaciones(request):
 
 
 def asignar_ot(request):
-    # ✅ CAMBIO: nombreTrabajador -> nombre
     trabajadores = Trabajador.objects.filter(activo=True).order_by("nombre")
 
     if request.method == "POST":
@@ -36,14 +34,16 @@ def asignar_ot(request):
         if form.is_valid():
             ot = form.cleaned_data["orden_trabajo"]
 
-            fecha_entrega = ot.fechaEntregaTrabajo
-            descripcion = ot.descripcionTrabajo
             fecha_asignacion = timezone.localdate()
+            fecha_entrega = getattr(ot, "fecha_entrega", None)
+            referencia = getattr(ot, "referencia", "")
+            descripcion = referencia or ""
 
             with transaction.atomic():
                 asignacion = form.save(commit=False)
                 asignacion.fecha_asignacion = fecha_asignacion
                 asignacion.fecha_entrega = fecha_entrega
+                asignacion.referencia = referencia
                 asignacion.descripcion_trabajo = descripcion
                 asignacion.save()
 
@@ -66,8 +66,6 @@ def asignar_ot(request):
 
 def editar_asignacion(request, pk):
     asignacion = get_object_or_404(AsignacionOT, pk=pk)
-
-    # ✅ CAMBIO: nombreTrabajador -> nombre
     trabajadores = Trabajador.objects.filter(activo=True).order_by("nombre")
 
     if request.method == "POST":
@@ -79,10 +77,15 @@ def editar_asignacion(request, pk):
         if form.is_valid():
             ot = form.cleaned_data["orden_trabajo"]
 
+            fecha_entrega = getattr(ot, "fecha_entrega", None)
+            referencia = getattr(ot, "referencia", "")
+            descripcion = referencia or ""
+
             with transaction.atomic():
                 obj = form.save(commit=False)
-                obj.fecha_entrega = ot.fechaEntregaTrabajo
-                obj.descripcion_trabajo = ot.descripcionTrabajo
+                obj.fecha_entrega = fecha_entrega
+                obj.referencia = referencia
+                obj.descripcion_trabajo = descripcion
                 obj.save()
 
                 obj.trabajadores.set(trabajadores_ids)
