@@ -14,8 +14,8 @@
             </a>
 
             {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
-            <a href="{% url 'ordenes:importar_ot_excel' %}" class="btn btn-primary">
-                Importar Excel
+            <a href="{% url 'ordenes:actualizar_ot_excel' %}" class="btn btn-primary">
+                Actualizar
             </a>
             {% endif %}
         </div>

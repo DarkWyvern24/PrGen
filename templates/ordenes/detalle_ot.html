@@ -59,6 +59,10 @@
                     <strong>Nivel de urgencia:</strong><br>
                     {{ ot.nivel_urgencia|default:"-" }}
                 </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Fecha Entrega:</strong><br>
+                    {{ ot.fecha_entrega|date:"d-m-Y"|default:"-" }}
+                </div>
             </div>
         </div>
     </div>

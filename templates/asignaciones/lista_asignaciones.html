@@ -10,9 +10,11 @@
       <a href="{% url 'home' %}" class="btn btn-secondary">
         ← Volver al Dashboard
       </a>
+      {% if request.user.rol != 'usuario' %}
       <a href="{% url 'asignaciones:asignar_ot' %}" class="btn btn-success">
         Nueva Asignación
       </a>
+      {% endif %}
     </div>
   </div>
 

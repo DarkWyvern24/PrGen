@@ -7,8 +7,8 @@
 <div class="card shadow">
     <div class="card-body">
 
-        <div class="d-flex justify-content-between mb-3">
-            <h3>Gestión de Usuarios</h3>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Gestión de Usuarios</h3>
 
             <div>
                 <a href="{% url 'home' %}" class="btn btn-secondary">
@@ -21,72 +21,76 @@
             </div>
         </div>
 
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-3">
+                <select name="estado" class="form-select" onchange="this.form.submit()">
+                    <option value="activos" {% if estado == 'activos' %}selected{% endif %}>Solo activos</option>
+                    <option value="inactivos" {% if estado == 'inactivos' %}selected{% endif %}>Solo inactivos</option>
+                    <option value="todos" {% if estado == 'todos' %}selected{% endif %}>Todos</option>
+                </select>
+            </div>
+        </form>
 
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td>{{ usuario.id }}</td>
-                    <td>{{ usuario.username }}</td>
-                    <td>{{ usuario.email }}</td>
-                    <td>
-                        <span class="badge bg-primary">
-                            {{ usuario.rol }}
-                        </span>
-                    </td>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
 
-                    <td>
-                        {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
-                        <!-- EDITAR -->
-                        <a href="{% url 'usuarios:editar_usuario' usuario.id %}" 
-                           class="btn btn-warning btn-sm">
-                           Editar
-                        </a>
-                        {% else %}
-                        <span class="text-muted">Solo Lectura</span>
-                        {% endif %}
-
-                        <!-- ELIMINAR -->
-                        {% if request.user != usuario %}
-                            {% if request.user.rol == 'admin_general' %}
-                                <form method="post"
-                                      action="{% url 'usuarios:eliminar_usuario' usuario.id %}"
-                                      style="display:inline;">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                            onclick="return confirm('¿Seguro que deseas eliminar este usuario?')"
-                                            class="btn btn-danger btn-sm">
-                                        Eliminar
-                                    </button>
-                                </form>
-                            {% elif request.user.rol == 'admin' and usuario.rol == 'usuario' %}
-                                <form method="post"
-                                      action="{% url 'usuarios:eliminar_usuario' usuario.id %}"
-                                      style="display:inline;">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                            onclick="return confirm('¿Seguro que deseas eliminar este usuario?')"
-                                            class="btn btn-danger btn-sm">
-                                        Eliminar
-                                    </button>
-                                </form>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td>{{ usuario.username }}</td>
+                        <td>{{ usuario.email|default:"-" }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ usuario.rol }}</span>
+                        </td>
+                        <td>
+                            {% if usuario.is_active %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
                             {% endif %}
-                        {% endif %}
+                        </td>
 
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        <td>
+                            {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
+                                <a href="{% url 'usuarios:editar_usuario' usuario.id %}" class="btn btn-warning btn-sm">
+                                    Editar
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Solo Lectura</span>
+                            {% endif %}
+
+                            {% if request.user != usuario and usuario.is_active %}
+                                {% if request.user.rol == 'admin_general' %}
+                                    <a href="{% url 'usuarios:confirmar_eliminar_usuario' usuario.id %}" class="btn btn-danger btn-sm">
+                                        Desactivar
+                                    </a>
+                                {% elif request.user.rol == 'admin' and usuario.rol == 'usuario' %}
+                                    <a href="{% url 'usuarios:confirmar_eliminar_usuario' usuario.id %}" class="btn btn-danger btn-sm">
+                                        Desactivar
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay usuarios para mostrar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
     </div>
 </div>

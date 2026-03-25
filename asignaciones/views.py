@@ -5,7 +5,7 @@ from django.utils import timezone
 from .models import AsignacionOT
 from .forms import AsignacionForm
 from trabajadores.models import Trabajador
-
+from usuarios.decorators import admin_required, admin_general_required, no_usuario_required
 
 def lista_asignaciones(request):
     asignaciones = (
@@ -21,7 +21,7 @@ def lista_asignaciones(request):
         {"asignaciones": asignaciones}
     )
 
-
+@no_usuario_required
 def asignar_ot(request):
     trabajadores = Trabajador.objects.filter(activo=True).order_by("nombre")
 
@@ -63,7 +63,7 @@ def asignar_ot(request):
         }
     )
 
-
+@no_usuario_required
 def editar_asignacion(request, pk):
     asignacion = get_object_or_404(AsignacionOT, pk=pk)
     trabajadores = Trabajador.objects.filter(activo=True).order_by("nombre")
@@ -105,7 +105,7 @@ def editar_asignacion(request, pk):
         }
     )
 
-
+@no_usuario_required
 def eliminar_asignacion(request, pk):
     asignacion = get_object_or_404(AsignacionOT, pk=pk)
 
