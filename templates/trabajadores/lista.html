@@ -16,8 +16,8 @@
             ← Volver al Dashboard
           </a>
           {% if request.user.rol == 'admin' or request.user.rol == 'admin_general' %}
-          <a href="{% url 'trabajadores:crear_trabajador' %}" class="btn btn-success">
-            Nuevo Trabajador
+          <a href="{% url 'trabajadores:actualizar_trabajadores' %}" class="btn btn-success">
+            🔄 Actualizar desde Excel
           </a>
           {% endif %}
         </div>

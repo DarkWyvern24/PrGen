@@ -13,16 +13,34 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-3 mb-3">
+        <div class="col-md-2 col-sm-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Total OT ingresadas</h6>
+                    <h6 class="text-muted">OT totales</h6>
                     <h3>{{ total_ot }}</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Asignadas</h6>
+                    <h3 class="text-primary">{{ total_asignadas }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">No asignadas</h6>
+                    <h3 class="text-secondary">{{ total_no_asignadas }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 col-sm-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
                     <h6 class="text-muted">No iniciadas</h6>
@@ -31,7 +49,7 @@
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-2 col-sm-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
                     <h6 class="text-muted">En proceso</h6>
@@ -40,11 +58,31 @@
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-2 col-sm-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
                     <h6 class="text-muted">Finalizadas</h6>
                     <h3 class="text-success">{{ total_finalizadas }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">OT fuera de plazo</h6>
+                    <h3 class="text-danger">{{ total_fuera_plazo }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Próximas a vencer ({{ dias_proximos_vencer }} días)</h6>
+                    <h3 class="text-warning">{{ total_proximas_vencer }}</h3>
                 </div>
             </div>
         </div>
@@ -91,102 +129,209 @@
 
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
-            <h5 class="mb-3">Asignaciones</h5>
-
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>N° OT</th>
-                            <th>Cliente</th>
-                            <th>Referencia</th>
-                            <th>Trabajadores</th>
-                            <th>Fecha asignación</th>
-                            <th>Fecha entrega</th>
-                            <th>% Avance</th>
-                            <th>% Esperado</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in asignaciones_resumen %}
-                        <tr>
-                            <td>{{ item.numero_ot }}</td>
-                            <td>{{ item.cliente|default:"-" }}</td>
-                            <td>{{ item.referencia|default:"-" }}</td>
-                            <td>{{ item.trabajadores|default:"-" }}</td>
-                            <td>{{ item.fecha_asignacion|date:"d-m-Y"|default:"-" }}</td>
-                            <td>{{ item.fecha_entrega|date:"d-m-Y"|default:"-" }}</td>
-                            <td>{{ item.porcentaje_real }}%</td>
-                            <td>{{ item.porcentaje_esperado }}%</td>
-                            <td>
-                                {% if item.semaforo == "rojo" %}
-                                    <span class="badge bg-danger">
-                                        {{ item.estado_seguimiento }}
-                                    </span>
-                                {% elif item.semaforo == "amarillo" %}
-                                    <span class="badge bg-warning text-dark">
-                                        {{ item.estado_seguimiento }}
-                                    </span>
-                                {% elif item.semaforo == "verde" %}
-                                    <span class="badge bg-success">
-                                        {{ item.estado_seguimiento }}
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-secondary">
-                                        {{ item.estado_seguimiento }}
-                                    </span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="9" class="text-center">No hay asignaciones registradas</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button type="button" class="btn btn-primary tab-btn active" data-tab="tab-resumen">Resumen general</button>
+                <button type="button" class="btn btn-outline-danger tab-btn" data-tab="tab-fuera-plazo">Fuera de plazo</button>
+                <button type="button" class="btn btn-outline-warning tab-btn" data-tab="tab-proximas">Próximas a vencer</button>
+                <button type="button" class="btn btn-outline-secondary tab-btn" data-tab="tab-no-asignadas">No asignadas</button>
             </div>
-        </div>
-    </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <h5 class="mb-3">OT no asignadas</h5>
+            <div class="tab-content-custom">
 
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Fecha</th>
-                            <th>N° OT</th>
-                            <th>N° Cotización</th>
-                            <th>Cliente</th>
-                            <th>Referencia</th>
-                            <th>Responsable</th>
-                            <th>Estado OT</th>
-                            <th>Fecha Entrega</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ot in ots_no_asignadas %}
-                        <tr>
-                            <td>{{ ot.fecha|date:"d-m-Y"|default:"-" }}</td>
-                            <td>{{ ot.numero }}</td>
-                            <td>{{ ot.numero_cotizacion|default:"-" }}</td>
-                            <td>{{ ot.cliente|default:"-" }}</td>
-                            <td>{{ ot.referencia|default:"-" }}</td>
-                            <td>{{ ot.responsable|default:"-" }}</td>
-                            <td>{{ ot.estado|default:"-" }}</td>
-                            <td>{{ ot.fecha_entrega|date:"d-m-Y"|default:"-" }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="8" class="text-center">No hay OT pendientes de asignar</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div id="tab-resumen" class="tab-panel active">
+                    <h5 class="mb-3">Seguimiento de OT asignadas</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>N° OT</th>
+                                    <th>Fecha OT</th>
+                                    <th>Cliente</th>
+                                    <th>Referencia</th>
+                                    <th>Trabajadores</th>
+                                    <th>Fecha entrega</th>
+                                    <th>% Avance</th>
+                                    <th>% Esperado</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in asignaciones_resumen %}
+                                <tr>
+                                    <td>{{ item.numero_ot }}</td>
+                                    <td>{{ item.fecha_ot|date:"d-m-Y"|default:"-" }}</td>
+                                    <td>{{ item.cliente|default:"-" }}</td>
+                                    <td>{{ item.referencia|default:"-" }}</td>
+                                    <td>{{ item.trabajadores|default:"-" }}</td>
+                                    <td>{{ item.fecha_entrega|date:"d-m-Y"|default:"-" }}</td>
+                                    <td>{{ item.porcentaje_real }}%</td>
+                                    <td>{{ item.porcentaje_esperado }}%</td>
+                                    <td>
+                                        {% if item.semaforo == "danger" %}
+                                            <span class="badge bg-danger">{{ item.estado_seguimiento }}</span>
+                                        {% elif item.semaforo == "warning" %}
+                                            <span class="badge bg-warning text-dark">{{ item.estado_seguimiento }}</span>
+                                        {% elif item.semaforo == "success" %}
+                                            <span class="badge bg-success">{{ item.estado_seguimiento }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ item.estado_seguimiento }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No hay OT asignadas registradas</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-fuera-plazo" class="tab-panel d-none">
+                    <h5 class="mb-3 text-danger">OT fuera de plazo</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>N° OT</th>
+                                    <th>Fecha OT</th>
+                                    <th>Cliente</th>
+                                    <th>Referencia</th>
+                                    <th>Trabajadores</th>
+                                    <th>Fecha entrega</th>
+                                    <th>Días atraso</th>
+                                    <th>% Avance</th>
+                                    <th>Asignada</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ot in ots_fuera_plazo %}
+                                <tr>
+                                    <td>{{ ot.numero }}</td>
+                                    <td>{{ ot.fecha|date:"d-m-Y"|default:"-" }}</td>
+                                    <td>{{ ot.cliente|default:"-" }}</td>
+                                    <td>{{ ot.referencia|default:"-" }}</td>
+                                    <td>{{ ot.trabajadores|default:"-" }}</td>
+                                    <td>{{ ot.fecha_entrega|date:"d-m-Y"|default:"-" }}</td>
+                                    <td><span class="badge bg-danger">{{ ot.dias_atraso }}</span></td>
+                                    <td>{{ ot.porcentaje_real }}%</td>
+                                    <td>
+                                        {% if ot.tiene_asignacion %}
+                                            <span class="badge bg-primary">Sí</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No hay OT fuera de plazo</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-proximas" class="tab-panel d-none">
+                    <h5 class="mb-3 text-warning">OT próximas a vencer</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>N° OT</th>
+                                    <th>Fecha OT</th>
+                                    <th>Cliente</th>
+                                    <th>Referencia</th>
+                                    <th>Trabajadores</th>
+                                    <th>Fecha entrega</th>
+                                    <th>Días restantes</th>
+                                    <th>% Avance</th>
+                                    <th>Asignada</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ot in ots_proximas_vencer %}
+                                <tr>
+                                    <td>{{ ot.numero }}</td>
+                                    <td>{{ ot.fecha|date:"d-m-Y"|default:"-" }}</td>
+                                    <td>{{ ot.cliente|default:"-" }}</td>
+                                    <td>{{ ot.referencia|default:"-" }}</td>
+                                    <td>{{ ot.trabajadores|default:"-" }}</td>
+                                    <td>{{ ot.fecha_entrega|date:"d-m-Y"|default:"-" }}</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">{{ ot.dias_restantes }}</span>
+                                    </td>
+                                    <td>{{ ot.porcentaje_real }}%</td>
+                                    <td>
+                                        {% if ot.tiene_asignacion %}
+                                            <span class="badge bg-primary">Sí</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No hay OT próximas a vencer</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-no-asignadas" class="tab-panel d-none">
+                    <h5 class="mb-3">OT no asignadas</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Fecha OT</th>
+                                    <th>N° OT</th>
+                                    <th>N° Cotización</th>
+                                    <th>Cliente</th>
+                                    <th>Referencia</th>
+                                    <th>Responsable</th>
+                                    <th>Estado OT</th>
+                                    <th>Fecha entrega</th>
+                                    <th>Días sin asignar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ot in ots_no_asignadas %}
+                                <tr>
+                                    <td>{{ ot.fecha|date:"d-m-Y"|default:"-" }}</td>
+                                    <td>{{ ot.numero }}</td>
+                                    <td>{{ ot.numero_cotizacion|default:"-" }}</td>
+                                    <td>{{ ot.cliente|default:"-" }}</td>
+                                    <td>{{ ot.referencia|default:"-" }}</td>
+                                    <td>{{ ot.responsable|default:"-" }}</td>
+                                    <td>{{ ot.estado|default:"-" }}</td>
+                                    <td>{{ ot.fecha_entrega|date:"d-m-Y"|default:"-" }}</td>
+                                    <td>
+                                        {% if ot.dias_sin_asignar != None %}
+                                            <span class="badge bg-dark">{{ ot.dias_sin_asignar }}</span>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No hay OT pendientes de asignar</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -209,16 +354,8 @@
                 data: {
                     labels: ["No iniciadas", "En proceso", "Finalizadas"],
                     datasets: [{
-                        data: [
-                            totalNoIniciadas,
-                            totalEnProceso,
-                            totalFinalizadas
-                        ],
-                        backgroundColor: [
-                            "#dc3545",
-                            "#ffc107",
-                            "#198754"
-                        ],
+                        data: [totalNoIniciadas, totalEnProceso, totalFinalizadas],
+                        backgroundColor: ["#dc3545", "#ffc107", "#198754"],
                         borderWidth: 1
                     }]
                 },
@@ -245,14 +382,8 @@
                 data: {
                     labels: ["OT asignadas", "OT no asignadas"],
                     datasets: [{
-                        data: [
-                            totalAsignadas,
-                            totalNoAsignadas
-                        ],
-                        backgroundColor: [
-                            "#0d6efd",
-                            "#6c757d"
-                        ],
+                        data: [totalAsignadas, totalNoAsignadas],
+                        backgroundColor: ["#0d6efd", "#6c757d"],
                         borderWidth: 1
                     }]
                 },
@@ -266,6 +397,43 @@
                 }
             });
         }
+
+        const botones = document.querySelectorAll(".tab-btn");
+        const paneles = document.querySelectorAll(".tab-panel");
+
+        botones.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const tabId = this.dataset.tab;
+
+                botones.forEach((b) => {
+                    b.classList.remove("active", "btn-primary", "btn-danger", "btn-warning", "btn-secondary");
+                    if (b.dataset.tab === "tab-resumen") b.classList.add("btn-outline-primary");
+                    if (b.dataset.tab === "tab-fuera-plazo") b.classList.add("btn-outline-danger");
+                    if (b.dataset.tab === "tab-proximas") b.classList.add("btn-outline-warning");
+                    if (b.dataset.tab === "tab-no-asignadas") b.classList.add("btn-outline-secondary");
+                });
+
+                paneles.forEach((panel) => {
+                    panel.classList.add("d-none");
+                    panel.classList.remove("active");
+                });
+
+                this.classList.remove("btn-outline-primary", "btn-outline-danger", "btn-outline-warning", "btn-outline-secondary");
+
+                if (tabId === "tab-resumen") this.classList.add("btn-primary");
+                if (tabId === "tab-fuera-plazo") this.classList.add("btn-danger");
+                if (tabId === "tab-proximas") this.classList.add("btn-warning");
+                if (tabId === "tab-no-asignadas") this.classList.add("btn-secondary");
+
+                this.classList.add("active");
+
+                const panelActivo = document.getElementById(tabId);
+                if (panelActivo) {
+                    panelActivo.classList.remove("d-none");
+                    panelActivo.classList.add("active");
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

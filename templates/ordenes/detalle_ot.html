@@ -12,7 +12,7 @@
         </a>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -59,11 +59,151 @@
                     <strong>Nivel de urgencia:</strong><br>
                     {{ ot.nivel_urgencia|default:"-" }}
                 </div>
+
                 <div class="col-md-6 mb-3">
                     <strong>Fecha Entrega:</strong><br>
                     {{ ot.fecha_entrega|date:"d-m-Y"|default:"-" }}
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Porcentaje de avance:</strong><br>
+                    {{ porcentaje_avance }}%
+                </div>
             </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light">
+            <strong>Trabajadores asignados</strong>
+        </div>
+        <div class="card-body">
+            {% if trabajadores_asignados %}
+                <ul class="mb-0">
+                    {% for trabajador in trabajadores_asignados %}
+                        <li>{{ trabajador.nombre }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <span class="text-muted">Esta OT no tiene trabajadores asignados.</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light">
+            <strong>Comentario / Observación</strong>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="guardar_comentario">
+
+                <div class="mb-3">
+                    <textarea
+                        name="comentario_detalle"
+                        class="form-control"
+                        rows="5"
+                        {% if not puede_editar_comentario %}readonly{% endif %}
+                    >{{ ot.comentario_detalle }}</textarea>
+                </div>
+
+                {% if puede_editar_comentario %}
+                    <button type="submit" class="btn btn-primary">Guardar comentario</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light">
+            <strong>Adjuntos</strong>
+        </div>
+        <div class="card-body">
+
+            {% if puede_subir_adjuntos %}
+            <form method="post" enctype="multipart/form-data" class="mb-4">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="subir_adjunto">
+
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label">Archivo</label>
+                        <input type="file" name="archivo" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-5">
+                        <label class="form-label">Nombre visible</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Opcional">
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">Subir</button>
+                    </div>
+                </div>
+            </form>
+            {% endif %}
+
+            {% if adjuntos %}
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Archivo</th>
+                                <th>Fecha</th>
+                                <th>Subido por</th>
+                                <th style="width: 260px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for adjunto in adjuntos %}
+                            <tr>
+                                <td>{{ adjunto.nombre }}</td>
+                                <td>
+                                    <a href="{{ adjunto.archivo.url }}" target="_blank">Ver / Descargar</a>
+                                </td>
+                                <td>{{ adjunto.fecha_subida|date:"d-m-Y H:i" }}</td>
+                                <td>
+                                    {% if adjunto.subido_por %}
+                                        {{ adjunto.subido_por.username }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column gap-2">
+                                        {% if puede_editar_adjuntos %}
+                                        <form method="post" action="{% url 'ordenes:editar_adjunto_ot' ot.numero adjunto.id %}" class="d-flex gap-2">
+                                            {% csrf_token %}
+                                            <input type="text" name="nombre" class="form-control form-control-sm" value="{{ adjunto.nombre }}">
+                                            <button type="submit" class="btn btn-warning btn-sm">Editar</button>
+                                        </form>
+                                        {% endif %}
+
+                                        {% if puede_eliminar_adjuntos %}
+                                        <form method="post" action="{% url 'ordenes:eliminar_adjunto_ot' ot.numero adjunto.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('¿Seguro que deseas eliminar este adjunto?');">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        {% if not puede_editar_adjuntos and not puede_eliminar_adjuntos %}
+                                            <span class="text-muted">Solo lectura</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <span class="text-muted">No hay adjuntos cargados para esta OT.</span>
+            {% endif %}
         </div>
     </div>
 

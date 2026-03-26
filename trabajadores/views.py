@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from .models import Trabajador
 from .forms import TrabajadorForm
+from django.contrib import messages
+from django.core.management import call_command
 
 
 def lista_trabajadores(request):
@@ -52,6 +54,14 @@ def crear_trabajador(request):
 
     return render(request, "trabajadores/crear.html", {"form": form})
 
+def actualizar_trabajadores(request):
+    try:
+        call_command("importar_trabajadores_excel")
+        messages.success(request, "Trabajadores actualizados correctamente.")
+    except Exception as e:
+        messages.error(request, f"Error al actualizar: {e}")
+
+    return redirect("trabajadores:lista_trabajadores")
 
 def editar_trabajador(request, id):
     trabajador = get_object_or_404(Trabajador, id=id)

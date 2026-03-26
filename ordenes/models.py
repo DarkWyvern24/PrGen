@@ -28,6 +28,9 @@ class OrdenTrabajo(models.Model):
     nivel_urgencia = models.CharField(max_length=100, blank=True)
     fecha_entrega = models.DateField(null=True, blank=True)
 
+    # NUEVO
+    comentario_detalle = models.TextField(blank=True, default="")
+
     class Meta:
         db_table = "ordentrabajo"
         verbose_name = "Orden de Trabajo"
@@ -36,3 +39,38 @@ class OrdenTrabajo(models.Model):
 
     def __str__(self):
         return f"OT {self.numero}"
+
+
+def ruta_adjunto_ot(instance, filename):
+    return f"adjuntos_ot/{instance.orden_trabajo.numero}/{filename}"
+
+
+class AdjuntoOT(models.Model):
+    orden_trabajo = models.ForeignKey(
+        OrdenTrabajo,
+        on_delete=models.CASCADE,
+        related_name="adjuntos"
+    )
+    archivo = models.FileField(upload_to=ruta_adjunto_ot)
+    nombre = models.CharField(max_length=255, blank=True)
+    fecha_subida = models.DateTimeField(auto_now_add=True)
+    subido_por = models.ForeignKey(
+        "usuarios.Usuario",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="adjuntos_ot_subidos"
+    )
+
+    class Meta:
+        ordering = ["-fecha_subida"]
+        verbose_name = "Adjunto OT"
+        verbose_name_plural = "Adjuntos OT"
+
+    def __str__(self):
+        return self.nombre or self.archivo.name.split("/")[-1]
+
+    def save(self, *args, **kwargs):
+        if not self.nombre and self.archivo:
+            self.nombre = self.archivo.name.split("/")[-1]
+        super().save(*args, **kwargs)

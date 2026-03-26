@@ -7,10 +7,22 @@ from openpyxl import load_workbook
 
 
 class Command(BaseCommand):
-    help = "Importa órdenes de trabajo desde bd.xlsx ubicado en esta misma carpeta"
+    help = "Importa y actualiza órdenes de trabajo desde bd.xlsx sin duplicar"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--ruta",
+            type=str,
+            help="Ruta completa del archivo Excel"
+        )
 
     def handle(self, *args, **options):
-        archivo_excel = Path(__file__).resolve().parent / "bd.xlsx"
+        ruta = options.get("ruta")
+
+        if ruta:
+            archivo_excel = Path(ruta)
+        else:
+            archivo_excel = Path(__file__).resolve().parent / "bd.xlsx"
 
         if not archivo_excel.exists():
             self.stdout.write(self.style.ERROR(
@@ -37,6 +49,7 @@ class Command(BaseCommand):
         creadas = 0
         actualizadas = 0
         omitidas = 0
+        sin_cambios = 0
 
         fila_inicio_datos = encabezados["fila"] + 1
 
@@ -47,7 +60,7 @@ class Command(BaseCommand):
                 continue
 
             try:
-                numero = int(numero)
+                numero = str(int(float(numero))).strip()
             except Exception:
                 self.stdout.write(self.style.WARNING(
                     f"Fila {fila}: Numero inválido '{numero}', se omite."
@@ -59,7 +72,7 @@ class Command(BaseCommand):
                 self.valor_celda(ws, fila, encabezados["columnas"].get("Fecha"))
             )
 
-            numero_cotizacion = self.parsear_entero(
+            numero_cotizacion = self.parsear_texto_numerico(
                 self.valor_celda(ws, fila, encabezados["columnas"].get("N° Cotizacion"))
             )
 
@@ -78,7 +91,7 @@ class Command(BaseCommand):
             estado = self.limpiar_texto(
                 self.valor_celda(ws, fila, encabezados["columnas"].get("Estado"))
             )
-            nivel_urgencia = self.parsear_entero(
+            nivel_urgencia = self.parsear_texto_numerico(
                 self.valor_celda(ws, fila, encabezados["columnas"].get("Nivel de Urgencia"))
             )
 
@@ -97,21 +110,34 @@ class Command(BaseCommand):
                 "responsable": responsable,
                 "estado": estado,
                 "nivel_urgencia": nivel_urgencia,
+                "fecha_entrega": fecha_entrega,
             }
 
-            if hasattr(OrdenTrabajo, "fecha_entrega"):
-                datos["fecha_entrega"] = fecha_entrega
-
             try:
-                obj, creado = OrdenTrabajo.objects.update_or_create(
-                    numero=numero,
-                    defaults=datos
-                )
+                obj = OrdenTrabajo.objects.filter(numero=numero).first()
 
-                if creado:
-                    creadas += 1
+                if obj:
+                    cambios = False
+
+                    for campo, valor in datos.items():
+                        valor_actual = getattr(obj, campo)
+
+                        if valor_actual != valor:
+                            setattr(obj, campo, valor)
+                            cambios = True
+
+                    if cambios:
+                        obj.save()
+                        actualizadas += 1
+                    else:
+                        sin_cambios += 1
+
                 else:
-                    actualizadas += 1
+                    OrdenTrabajo.objects.create(
+                        numero=numero,
+                        **datos
+                    )
+                    creadas += 1
 
             except Exception as e:
                 omitidas += 1
@@ -120,7 +146,11 @@ class Command(BaseCommand):
                 ))
 
         self.stdout.write(self.style.SUCCESS(
-            f"Importación finalizada. Creadas: {creadas}, actualizadas: {actualizadas}, omitidas: {omitidas}"
+            "Importación finalizada. "
+            f"Creadas: {creadas}, "
+            f"actualizadas: {actualizadas}, "
+            f"sin cambios: {sin_cambios}, "
+            f"omitidas: {omitidas}"
         ))
 
     def obtener_encabezados(self, ws):
@@ -179,16 +209,17 @@ class Command(BaseCommand):
             return ""
         return str(valor).strip()
 
-    def parsear_entero(self, valor):
+    def parsear_texto_numerico(self, valor):
         if valor in (None, ""):
-            return None
+            return ""
+
         try:
-            return int(valor)
+            numero = float(valor)
+            if numero.is_integer():
+                return str(int(numero))
+            return str(numero).strip()
         except Exception:
-            try:
-                return int(float(valor))
-            except Exception:
-                return None
+            return str(valor).strip()
 
     def parsear_fecha(self, valor):
         if valor in (None, ""):

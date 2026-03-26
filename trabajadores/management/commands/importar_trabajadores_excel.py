@@ -7,7 +7,7 @@ from trabajadores.models import Trabajador
 
 
 class Command(BaseCommand):
-    help = "Importa trabajadores desde nomina.xlsx ubicado en esta misma carpeta"
+    help = "Sincroniza trabajadores desde nomina.xlsx"
 
     def handle(self, *args, **options):
         archivo_excel = Path(__file__).resolve().parent / "nomina.xlsx"
@@ -31,9 +31,10 @@ class Command(BaseCommand):
         actualizados = 0
         omitidos = 0
 
-        # Encabezados reales en fila 4, datos desde fila 5
+        # CLAVE: guardar todos los RUT del Excel
+        ruts_excel = set()
+
         for fila in range(5, ws.max_row + 1):
-            numero = ws.cell(row=fila, column=1).value
             nombre_raw = ws.cell(row=fila, column=2).value
             rut_raw = ws.cell(row=fila, column=3).value
             cargo_raw = ws.cell(row=fila, column=4).value
@@ -46,26 +47,24 @@ class Command(BaseCommand):
             cargo = self.limpiar_texto(cargo_raw)
 
             if not nombre:
-                self.stdout.write(self.style.WARNING(
-                    f"Fila {fila}: nombre vacío, se omite."
-                ))
                 omitidos += 1
                 continue
 
-            if not rut:
-                # Si faltara rut, usa nombre como respaldo para no perder registro
+            if rut:
+                ruts_excel.add(rut)
+
                 trabajador, creado = Trabajador.objects.update_or_create(
-                    nombre=nombre,
+                    rut=rut,
                     defaults={
+                        "nombre": nombre,
                         "cargo": cargo,
                         "activo": True,
                     }
                 )
             else:
                 trabajador, creado = Trabajador.objects.update_or_create(
-                    rut=rut,
+                    nombre=nombre,
                     defaults={
-                        "nombre": nombre,
                         "cargo": cargo,
                         "activo": True,
                     }
@@ -76,8 +75,26 @@ class Command(BaseCommand):
             else:
                 actualizados += 1
 
+        # INACTIVAR LOS QUE NO ESTÁN EN EXCEL
+        desactivados = 0
+
+        trabajadores_db = Trabajador.objects.all()
+
+        for trabajador in trabajadores_db:
+            if trabajador.rut and trabajador.rut not in ruts_excel:
+                if trabajador.activo:
+                    trabajador.activo = False
+                    trabajador.save()
+                    desactivados += 1
+
         self.stdout.write(self.style.SUCCESS(
-            f"Importación finalizada. Creados: {creados}, actualizados: {actualizados}, omitidos: {omitidos}"
+            f"""
+Sincronización completada:
+- Creados: {creados}
+- Actualizados: {actualizados}
+- Inactivados: {desactivados}
+- Omitidos: {omitidos}
+"""
         ))
 
     def limpiar_texto(self, valor):
@@ -86,12 +103,6 @@ class Command(BaseCommand):
         return str(valor).strip()
 
     def normalizar_nombre(self, valor):
-        """
-        Convierte:
-        ACEVEDO VARGAS JORGE ALBERTO
-        a algo más legible:
-        Jorge Alberto Acevedo Vargas
-        """
         texto = self.limpiar_texto(valor)
         if not texto:
             return ""
@@ -100,7 +111,6 @@ class Command(BaseCommand):
         if len(partes) < 3:
             return texto.title()
 
-        # Asume formato común: APELLIDO1 APELLIDO2 NOMBRE1 NOMBRE2...
         apellidos = partes[:2]
         nombres = partes[2:]
 

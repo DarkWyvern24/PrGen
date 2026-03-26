@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,6 +65,13 @@
 <body>
 
 <div class="login-container">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <img src="{% static 'logo.jpg' %}" 
+                 alt="Logo" 
+                 width="350" 
+                 height="250" 
+                 class="me-2 rounded">
+    </a>
     <h2>Iniciar Sesión</h2>
 
     <form method="post">
